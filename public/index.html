@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Selfie App</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="./css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+  <script src="./js/bootstrap.min.js"></script>
+  <script src="./js/jquery.min.js"></script>
+  <style>
+ body{background-color:#25274d}.contact{padding:4%;height:400px}.col-md-3{background:#ff9b00;padding:4%;border-top-left-radius:.5rem;border-bottom-left-radius:.5rem}.contact-info{margin-top:10%}.contact-info img{margin-bottom:15%}.contact-info h2{margin-bottom:10%}.col-md-9{background:#fff;padding:3%;border-top-right-radius:.5rem;border-bottom-right-radius:.5rem}.contact-form label{font-weight:600}video{position:absolute;left:299px}
+  </style>
+</head>
+<body>
+<div class="container contact">
+	<div class="row">
+		<div class="col-md-3">
+			<div class="contact-info">
+				<img src="https://i.gifer.com/ILLj.gif" id="img1" width="112" height="auto" alt="image"/>
+				<h2 style="font-size: 25px;font-weight:800;">Selfie App  🤳</h2>
+				<h4 style="font-size:23px">🎊 Would love to hear from you ! 🎉</h4>
+			</div>
+		</div>
+		<div class="col-md-9 col-md-offset-2">
+      <form id="addForm">
+			<div class="contact-form">
+				<div class="form-group">
+				  <label class="control-label col-sm-3" for="name">Name:</label>
+				  <div class="col-sm-9">          
+					<input type="text" class="form-control" id="name" placeholder="Enter name" name="name" required>
+				  </div>
+				</div>
+				<div class="form-group">
+				  <label class="control-label col-sm-3" for="email">Email:</label>
+				  <div class="col-sm-9">
+					<input type="email" class="form-control" id="email" placeholder="Enter email" name="email" required>
+				  </div>
+                </div>
+                <div class="form-group">
+                  <label class="control-label col-sm-3" for="mood">Current Mood:</label>
+                  <div class="col-sm-9">
+                    <select class="form-control" id="mood" name="mood" required>
+                          <option value="0">Feeling Excited  🤩</option>
+                          <option value="1">Feeling Cool 😎</option>
+                          <option value="2">Feeling Surprise 🤑</option>
+                          <option value="3">Feeling Angry  🤬</option>
+                          <option value="4">Feeling Grateful  🥰</option>
+                          <option value="5">Feeling Heartbroken  💔</option>
+                          <option value="6">Feeling Blessed  🤗</option>
+                    </select>
+                  </div>
+                </div>
+				<div class="form-group">
+				  <label class="control-label col-sm-3" for="goal">Elaborate Life Goal:</label>
+				  <div class="col-sm-9">
+					<textarea class="form-control" rows="5" id="goal" required style="resize :none;"></textarea>
+				  </div>
+				</div>
+				<div class="form-group">
+          <div class="row finalCheck" style="padding-left:16px;display:none;">            
+            <div class="col-sm-7 puul-left">
+              <button type="submit" class="btn btn-default" style="background: #25274d;color: #fff;" id="btnSubmit">Submit</button>
+            </div>
+            <div class="col-sm-5 pull-right">
+              <a href='/list.html' class="btn btn-default" id="viewBtn" style="background: #25274d;color: #fff;font-weight: 600;width: 25%;">View</a>
+            </div>
+          </div>
+          <div class="errorWeb"><h3 class="text-center text-danger">Make sure you have a webcam 🧐, if yes then start it..</h3></div>
+				</div>
+        </div>
+        </form>
+		</div>
+	</div>
+</div>
+<!--script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.8.0/p5.min.js"></script> // you can use this both if cam not working
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.8.0/addons/p5.dom.min.js"></script-->
+<script src="./js/p5.min.js"></script>
+<script src="./js/p5.do.min.js"></script>
+<script>  
+
+function setup(){
+  // has webcame?
+  navigator.getMedia = ( navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+  navigator.getMedia({video: true}, function() {
+    document.getElementsByClassName("finalCheck")[0].style.display = "flex";
+    document.getElementsByClassName("errorWeb")[0].style.display = "none";
+  }, function() {
+    document.getElementsByClassName("finalCheck")[0].style.display = "none";
+    document.getElementsByClassName("errorWeb")[0].style.display = "flex";
+  });
+
+
+    noCanvas();
+    const video = createCapture(VIDEO);
+    video.size(200, 180);
+    document.getElementById('addForm').addEventListener('submit', performPostRequest);
+    async function performPostRequest(e) {
+        e.preventDefault();
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const mood = document.getElementById('mood').value;
+        const goal = document.getElementById('goal').value;
+        video.loadPixels();
+        const image64 = video.canvas.toDataURL();
+        if(name === ''){
+          alert('Please enter your name');
+        } else if(email === ''){
+          alert('Please enter your name');
+        } else if(mood === ''){
+          alert('Please select your mood');
+        } else if(goal === ''){
+          alert('Please enter your goal');
+        } else {
+          const data = { name, email, mood, goal, image64 };
+          var button = document.getElementById('btnSubmit');
+          button.disabled = true; // disable the submit button preventing from double click
+          button.textContent = 'Loading...'; // change text of submit button
+          const options = {
+              method : 'POST',
+              credentials: 'include',
+              headers : {
+                  'Content-Type' : 'application/json'
+              },
+              body : JSON.stringify(data)
+          };
+          const response = await fetch('/take-selfie',options);
+          const json = await response.json();
+          document.getElementById("addForm").reset();
+          button.disabled = false; // enable the submit button
+          button.textContent  = 'Submit';       
+          if(json.status === 500){
+            alert(json.message);
+          } else {
+            alert('Success..Now click on view and take a look..');
+          }
+        }
+    }
+}
+setTimeout(function() {
+    setInterval(function() {
+        $('#img1').attr('src',$('#img1').attr('src'))
+    },1)
+}, 4000);
+</script>
+</body>
+</html>

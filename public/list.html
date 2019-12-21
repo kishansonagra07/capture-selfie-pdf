@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Selfie List</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="./css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+  <script src="./js/bootstrap.min.js"></script>
+  <script src="./js/jquery.min.js"></script>
+  <style>
+ body{background-color:#25274d}.contact{padding:4%;height:400px}.yellow-bg{background:#ff9b00;padding:2%;border-radius:.5rem;height:111px}.contact-form label{font-weight:600}.contact-form button{background:#25274d;color:#fff;font-weight:600;width:25%}.contact-form button:focus{box-shadow:none}ul{margin:0;padding:0;list-style:none}.padding-lg{display:block;padding-top:60px;padding-bottom:60px}.practice-area.padding-lg{padding-bottom:55px;padding-top:55px}.practice-area .inner{border:1px solid #999;text-align:center;margin-bottom:28px;padding:40px 25px}.our-webcoderskull .cnt-block:hover{box-shadow:0 0 10px rgba(0,0,0,.3);border:0}.practice-area .inner h3{color:#3c3c3c;font-size:24px;font-weight:500;font-family:Poppins,sans-serif;padding:10px 0}.practice-area .inner p{font-size:14px;line-height:22px;font-weight:400}.practice-area .inner img{display:inline-block}.our-webcoderskull{background:url(http://www.webcoderskull.com/img/right-sider-banner.png) no-repeat center top/cover}.our-webcoderskull .cnt-block{float:left;width:100%;background:#fff;padding:30px 20px;text-align:center;border:2px solid #d5d5d5;margin:0 0 28px}.our-webcoderskull .cnt-block figure{width:148px;height:148px;border-radius:100%;display:inline-block;margin-bottom:15px}.our-webcoderskull .cnt-block img{width:148px;height:148px;border-radius:100%}.our-webcoderskull .cnt-block h3{color:#2a2a2a;font-size:20px;font-weight:500;padding:6px 0;text-transform:uppercase}.our-webcoderskull .cnt-block h3 a{text-decoration:none;color:#2a2a2a}.our-webcoderskull .cnt-block h3 a:hover{color:#337ab7}.our-webcoderskull .cnt-block p{color:#2a2a2a;font-size:13px;line-height:20px;font-weight:400}.our-webcoderskull .cnt-block .follow-us{margin:20px 0 0}.our-webcoderskull .cnt-block .follow-us li{display:inline-block;width:auto;margin:0 5px}.our-webcoderskull .cnt-block .follow-us li .fa{font-size:24px;color:#767676}.our-webcoderskull .cnt-block .follow-us li .fa:hover{color:#025a8e}
+  </style>
+</head>
+<body>
+<div class="container contact">
+	<div class="row">
+		<div class="col-md-12 yellow-bg">
+			<div class="contact-info text-center">
+				<a href="/" style="text-decoration: none;"><h2 style="font-weight:800;">Selfie App  🤳</h2></a>
+				<h4>✨ Let's take a look what you did ..hmm !!! 💥</h4>
+			</div>
+		</div>
+        <div class="col-md-12">
+            <section class="our-webcoderskull padding-lg">
+                <div class="container" id="ifEmpty">
+                    <ul class="row" id="placeHere">                        
+                    </ul>
+                </div>
+            </section>
+        </div>
+	</div>
+</div>
+<script>
+getData();
+async function getData(){
+    const response = await fetch('/selfie-list');
+    const jsonRes = await response.json();
+    showData(response,jsonRes);
+}
+function showData(response,jsonRes){
+    if(response.status === 500){
+        ifEmpty();
+        return false;
+    }
+    if (typeof jsonRes.data !== 'undefined' && jsonRes.data.length > 0) {
+        let body = '';
+    for(item of jsonRes.data){
+        body += `<li class="col-12 col-md-6 col-lg-3">
+                    <div class="cnt-block equal-hight" style="height: auto !important;">
+                    <figure><img src="./pics/${item.imagePath}.png" class="img-responsive" alt="${item.name}"></figure>
+                    <h3 style="word-break: break-word;">${item.name}</h3>
+                    <p style="background: #ff9b00;padding: 2%;border-radius: 0.5rem;word-break: break-word;">${item.email}</p>
+                    <p>${getFeeling(item.mood)}</p>
+                    <p data-id="${item._id}"><button class="btn btn-success btn-sm" style="cursor:pointer;" id="makePdf"> PDF 📥</button>&nbsp;&nbsp;&nbsp;&nbsp;<button class="btn btn-danger btn-sm" style="cursor:pointer;" id="deleteSelfie">Delete ❌</button></p>
+                    <br/>
+                </div>'+
+            </li>`;
+    }
+    document.getElementById("placeHere").insertAdjacentHTML('beforeend',body);   
+    } else {
+        ifEmpty();
+        return false;
+    }   
+}
+function ifEmpty(){
+    let ifEmptys = document.getElementById("ifEmpty");
+    ifEmptys.innerHTML = "";
+    ifEmptys.insertAdjacentHTML('beforeend',"<h4 class='text-center' style='color: white;'>😱 Ooppss ..!! please go to <a href='/'>Home</a> and capture selfie 🤳</h4>");
+}
+function getFeeling(val){
+    var arr = ["Feeling Excited  🤩","Feeling Cool 😎","Feeling Surprise 🤑","Feeling Angry 🤬","Feeling Grateful 🥰","Feeling Heartbroken 💔","Feeling Blessed  🤗"];
+    return arr[val];
+}
+window.onload = function() {
+    document.addEventListener('click',function(e){
+        let tgt = e.target;
+        if(tgt && tgt.id== 'deleteSelfie'){
+            if(confirm("Are you sure you want to delete 🙄 ?")){
+                tgt.disabled = true;
+                tgt.textContent = 'Loading...';
+                deleteSelfie(tgt.parentNode.getAttribute("data-id"),tgt);
+                tgt.parentNode.parentNode.parentNode.remove();
+                if(document.getElementById("placeHere").getElementsByTagName("li").length <= 0){
+                    ifEmpty();
+                }
+            }
+        } else if(tgt && tgt.id== 'makePdf'){
+            if(confirm("Are you sure you want to make a PDF 🙄 ?")){
+                tgt.disabled = true;
+                tgt.textContent = 'Loading...';
+                makePdf(tgt.parentNode.getAttribute("data-id"),tgt);
+            }
+        }
+ });
+};
+async function deleteSelfie(id){
+    if(id === undefined && id === ""){
+        alert('Something went wrong');
+        return false;
+    }
+    const response = await fetch('/delete-selfie/'+id,{method: 'DELETE'});
+    const jsonRes = await response.json();
+    tgt.disabled = false; 
+    tgt.textContent = ' Delete ❌';
+}
+async function makePdf(id,tgt){   
+    if(id === undefined && id === ""){
+        alert('Something went wrong');
+        return false;
+    }
+    const response = await fetch('/make-pdf/'+id);
+    const jsonRes = await response.json();
+    if(response.status !== 500){
+        tgt.disabled = false; 
+        tgt.textContent = ' PDF 📥';
+        window.location.href = '/pdfs/'+jsonRes.data;
+    } else {
+        alert('Something went wrong');
+    }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "selfie-click",
+  "version": "1.0.0",
+  "description": "Capture a selfie and make get PDF  with you selfie and other data",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "nedb": "^1.8.0",
+    "puppeteer": "^2.0.0"
+  }
+}
